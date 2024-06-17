@@ -5,6 +5,10 @@
 	const TILE_WIDTH = 130;
 	const TILE_HEIGHT = 75;
 	const MAX_TILE_HEIGHT = 100;
+	const BACKGROUND_COLOR = `#1E1E2F`;
+	export let GRID_WIDTH = 10;
+	export let GRID_HEIGHT = 10;
+
 	class Tile {
 		constructor(terrainType, x, y, height = 0) {
 			this.terrainType = terrainType;
@@ -30,7 +34,7 @@
 					const terrainType = this.determineTerrainType(x, y);
 					const tile = new Tile(terrainType, x, y);
 					tiles.push(tile);
-					MAP_GLOBAL.set(x * this.width + y, tile);
+					MAP_GLOBAL.set(`${x}${y}`, tile);
 				}
 			}
 			return tiles;
@@ -42,7 +46,7 @@
 		}
 
 		getTile(x, y) {
-			const tile = MAP_GLOBAL.get(x * this.width + y);
+			const tile = MAP_GLOBAL.get(`${x}${y}`);
 			return tile ? tile : null;
 		}
 
@@ -50,10 +54,10 @@
 			let tile = this.getTile(x, y);
 			if (!tile) {
 				tile = new Tile(newTerrainType, x, y);
-				MAP_GLOBAL[x * this.width + y] = tile;
+				MAP_GLOBAL.set(`${x}${y}`, tile);
 				return tile;
 			} else {
-				MAP_GLOBAL.get(x * this.width + y).terrainType = newTerrainType;
+				MAP_GLOBAL.get(`${x}${y}`).terrainType = newTerrainType;
 				return tile;
 			}
 		}
@@ -79,18 +83,26 @@
 			this.prevMouseY = 0;
 
 			// P5 setup for mouse events
-			this.p5.mousePressed = () => {
-				this.isDragging = true;
-				this.prevMouseX = this.p5.mouseX;
-				this.prevMouseY = this.p5.mouseY;
+			this.p5.mousePressed = (e) => {
+				if (e.which == 2 || e.button == 4) {
+					// middle mouse button
+					this.isDragging = true;
+					this.prevMouseX = this.p5.mouseX;
+					this.prevMouseY = this.p5.mouseY;
+				} else if (e.button == 2) {
+					e.preventDefault();
+					const { grid_x, grid_y } = this.getGridCoords(e.clientX, e.clientY);
+					let tile = MAP_GLOBAL.get(`${grid_x}${grid_y}`);
+					if (tile) this.deleteTile(`${grid_x}${grid_y}`);
+				}
 			};
 
 			this.p5.mouseReleased = () => {
 				this.isDragging = false;
 			};
 
-			this.p5.mouseDragged = () => {
-				if (this.isDragging) {
+			this.p5.mouseDragged = (e) => {
+				if (this.isDragging && (e.which == 2 || e.button == 4)) {
 					let dx = this.p5.mouseX - this.prevMouseX;
 					let dy = this.p5.mouseY - this.prevMouseY;
 
@@ -137,20 +149,21 @@
 				tileHeight
 			);
 		}
+		deleteTile(key) {
+			MAP_GLOBAL.delete(key);
+			this.render();
+		}
 		render() {
 			this.p5.clear();
-			this.p5.background(`rgba(0,255,255,0.5)`);
+			this.p5.background(BACKGROUND_COLOR);
+
 			for (let [key, tile] of MAP_GLOBAL) {
 				// key grid node number
 				// tile class instance
 				this.drawTile(tile);
 			}
 		}
-		onClick(event) {
-
-			const x_screen = event.clientX;
-			const y_screen = event.clientY;
-
+		getGridCoords(x_screen, y_screen) {
 			// Undo zoom and pan
 			let adjustedX = x_screen / this.zoom - this.panX;
 			let adjustedY = y_screen / this.zoom - this.panY;
@@ -166,10 +179,21 @@
 			grid_x--; // account float point approximation errors from observation
 			let grid_y = Math.floor((b - a) / 2);
 
-			console.log(grid_x,grid_y)
+			// error adjustments
+			if (this.zoom <= 0.6) {
+				grid_x += 2;
+				grid_y += 2;
+			} else if (this.zoom <= 1) {
+				grid_x += 1;
+				grid_y += 1;
+			}
+			return { grid_x, grid_y };
+		}
+		onClick(event) {
+			const { grid_x, grid_y } = this.getGridCoords(event.clientX, event.clientY);
 
 			const updated_tile = this.terrain.updateTile(grid_x, grid_y, 'grass');
-			// this.drawTile(updated_tile);
+
 			this.render();
 		}
 	}
@@ -189,19 +213,21 @@
 			const width = window.innerWidth;
 			const height = window.innerHeight;
 			p5.createCanvas(width, height);
-			terrain = new Terrain(10, 10);
+			terrain = new Terrain(GRID_WIDTH, GRID_HEIGHT);
 			renderer = new TerrainRenderer(width, height, terrain, p5);
 			renderer.render();
 		};
-		// p5.draw = () => {
-		// 	renderer.render(); // Continuously call render
-		// };
+		p5.draw = () => {
+			renderer.render(); // Continuously call render
+		};
 		p5.mouseClicked = (event) => {
 			renderer.onClick(event);
 		};
 	};
 </script>
 
-<P5 {sketch} />
+<span on:contextmenu|preventDefault>
+	<P5 {sketch} />
+</span>
 
 <style></style>
