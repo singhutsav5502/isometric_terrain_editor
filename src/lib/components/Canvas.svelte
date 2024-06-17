@@ -17,10 +17,9 @@
 	}
 
 	class Terrain {
-		constructor(width, height, tileSize) {
+		constructor(width, height) {
 			this.width = width;
 			this.height = height;
-			this.tileSize = tileSize;
 			this.tiles = this.generateTerrain();
 		}
 
@@ -69,23 +68,77 @@
 			this.x_start = this.width / 2 - TILE_WIDTH / 2;
 			this.y_start = -TILE_HEIGHT / 2;
 
-            this.panX = 0;
-            this.panY = 0;
-            this.zoom = 1;
-		}
+			this.panX = 0;
+			this.panY = 0;
+			this.zoom = 1;
+			this.targetZoom = 1;
+			this.easing = 0.1;
 
+			this.isDragging = false;
+			this.prevMouseX = 0;
+			this.prevMouseY = 0;
+
+			// P5 setup for mouse events
+			this.p5.mousePressed = () => {
+				this.isDragging = true;
+				this.prevMouseX = this.p5.mouseX;
+				this.prevMouseY = this.p5.mouseY;
+			};
+
+			this.p5.mouseReleased = () => {
+				this.isDragging = false;
+			};
+
+			this.p5.mouseDragged = () => {
+				if (this.isDragging) {
+					let dx = this.p5.mouseX - this.prevMouseX;
+					let dy = this.p5.mouseY - this.prevMouseY;
+
+					this.panX += dx / this.zoom;
+					this.panY += dy / this.zoom;
+
+					this.prevMouseX = this.p5.mouseX;
+					this.prevMouseY = this.p5.mouseY;
+
+					this.render();
+				}
+			};
+			this.p5.mouseWheel = (event) => {
+				let zoomSensitivity = 0.01;
+				this.targetZoom -= event.delta * zoomSensitivity;
+				this.targetZoom = this.p5.constrain(this.targetZoom, 0.5, 4);
+				this.updateZoom();
+			};
+		}
+		updateZoom() {
+			// Interpolate zoom level
+			// while (this.zoom != this.targetZoom) {
+			this.zoom += (this.targetZoom - this.zoom) * this.easing;
+			this.render();
+			// }
+		}
 		drawTile(tile) {
 			let x_screen = this.x_start + ((tile.x - tile.y) * TILE_WIDTH) / 2;
 			let y_screen = this.y_start + ((tile.x + tile.y) * TILE_HEIGHT) / 2;
 			let z_offset = MAX_TILE_HEIGHT - tile.tile_height;
+
+			// pan and zoom
+			x_screen = (x_screen + this.panX) * this.zoom;
+			y_screen = (y_screen + this.panY) * this.zoom;
+			let tileWidth = TILE_WIDTH * this.zoom;
+			let tileHeight = TILE_HEIGHT * this.zoom;
+
 			this.p5.image(
-				tile_images[Math.floor(Math.random()*2)],
+				// tile_images[Math.floor(Math.random() * 2)],
+				tile_images[tile.terrainType === 'grass' ? 0 : 1],
 				x_screen,
-				y_screen - z_offset
+				y_screen - z_offset,
+				tileWidth,
+				tileHeight
 			);
 		}
 		render() {
-            this.p5.clear();
+			this.p5.clear();
 			this.p5.background(`rgba(0,255,255,0.5)`);
 			for (let [key, tile] of MAP_GLOBAL) {
 				// key grid node number
@@ -94,16 +147,26 @@
 			}
 		}
 		onClick(event) {
-			const x_screen = Math.floor(event.clientX);
-			const y_screen = Math.floor(event.clientY);
-			let x1 = x_screen - this.x_start;
-			let y1 = y_screen + MAX_TILE_HEIGHT - this.y_start;
 
-			let a = Math.floor((2 * x1) / TILE_WIDTH);
-			let b = Math.floor((2 * y1) / TILE_HEIGHT);
+			const x_screen = event.clientX;
+			const y_screen = event.clientY;
+
+			// Undo zoom and pan
+			let adjustedX = x_screen / this.zoom - this.panX;
+			let adjustedY = y_screen / this.zoom - this.panY;
+
+			// Reverse isometric transformation
+			let x1 = adjustedX - this.x_start;
+			let y1 = adjustedY + MAX_TILE_HEIGHT - this.y_start;
+
+			let a = (2 * x1) / TILE_WIDTH;
+			let b = (2 * y1) / TILE_HEIGHT;
 
 			let grid_x = Math.floor((a + b) / 2);
+			grid_x--; // account float point approximation errors from observation
 			let grid_y = Math.floor((b - a) / 2);
+
+			console.log(grid_x,grid_y)
 
 			const updated_tile = this.terrain.updateTile(grid_x, grid_y, 'grass');
 			// this.drawTile(updated_tile);
@@ -126,10 +189,13 @@
 			const width = window.innerWidth;
 			const height = window.innerHeight;
 			p5.createCanvas(width, height);
-			terrain = new Terrain(100, 100, 2);
+			terrain = new Terrain(10, 10);
 			renderer = new TerrainRenderer(width, height, terrain, p5);
 			renderer.render();
 		};
+		// p5.draw = () => {
+		// 	renderer.render(); // Continuously call render
+		// };
 		p5.mouseClicked = (event) => {
 			renderer.onClick(event);
 		};
