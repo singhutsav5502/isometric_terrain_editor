@@ -2,4 +2,4 @@
 
 ### Technologies
 
-Three.JS, HTML, CSS, JS
+P5.js, HTML, CSS, JS
