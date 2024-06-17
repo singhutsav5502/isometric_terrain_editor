@@ -1,2 +1,21 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+
+
+<script>
+	import Menu from '$lib/components/Menu.svelte';
+	import Canvas from '$lib/components/Canvas.svelte';
+</script>
+
+<svelte:head>
+	<title>terrain transformer</title>
+</svelte:head>
+
+<div class="page-content">
+	<Canvas />
+	<Menu />
+</div>
+
+<style>
+	.page-content {
+		background-color: rgb(106, 106, 106);
+	}
+</style>
