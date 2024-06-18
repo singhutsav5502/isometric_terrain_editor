@@ -1,8 +1,8 @@
 <script>
 	import P5 from 'p5-svelte';
 	import data from '../Assets/assets_imports';
-	export let GRID_WIDTH = 10;
-	export let GRID_HEIGHT = 10;
+	export let GRID_WIDTH;
+	export let GRID_HEIGHT;
 	export let selected_asset = {};
 	const MAP_GLOBAL = new Map();
 	const MAP_HEIGHT_TILES = new Map();
@@ -38,7 +38,7 @@
 					const terrainType = this.determineTerrainType(x, y);
 					const tile = new Tile(terrainType, x, y);
 					tiles.push(tile);
-					MAP_GLOBAL.set(`${x}${y}`, tile);
+					MAP_GLOBAL.set(`${x} ${y}`, tile);
 				}
 			}
 			return tiles;
@@ -50,11 +50,11 @@
 		}
 
 		getTile(x, y) {
-			const tile = MAP_GLOBAL.get(`${x}${y}`);
+			const tile = MAP_GLOBAL.get(`${x} ${y}`);
 			return tile ? tile : null;
 		}
 		getHeightTile(x, y) {
-			const tile = MAP_HEIGHT_TILES.get(`${x}${y}`);
+			const tile = MAP_HEIGHT_TILES.get(`${x} ${y}`);
 			return tile ? tile : null;
 		}
 		updateTile(x, y, newTerrainType, height = 0) {
@@ -62,22 +62,22 @@
 				let tile = this.getTile(x, y);
 				if (!tile) {
 					tile = new Tile(newTerrainType, x, y, height);
-					MAP_GLOBAL.set(`${x}${y}`, tile);
+					MAP_GLOBAL.set(`${x} ${y}`, tile);
 					return tile;
 				} else {
-					MAP_GLOBAL.get(`${x}${y}`).tileType = newTerrainType;
-					MAP_GLOBAL.get(`${x}${y}`).tile_height = height;
+					MAP_GLOBAL.get(`${x} ${y}`).tileType = newTerrainType;
+					MAP_GLOBAL.get(`${x} ${y}`).tile_height = height;
 					return tile;
 				}
 			} else {
 				let tile = this.getHeightTile(x, y);
 				if (!tile) {
 					tile = new Tile(newTerrainType, x, y, height);
-					MAP_HEIGHT_TILES.set(`${x}${y}`, tile);
+					MAP_HEIGHT_TILES.set(`${x} ${y}`, tile);
 					return tile;
 				} else {
-					MAP_HEIGHT_TILES.get(`${x}${y}`).tileType = newTerrainType;
-					MAP_HEIGHT_TILES.get(`${x}${y}`).tile_height = height;
+					MAP_HEIGHT_TILES.get(`${x} ${y}`).tileType = newTerrainType;
+					MAP_HEIGHT_TILES.get(`${x} ${y}`).tile_height = height;
 					return tile;
 				}
 			}
@@ -146,7 +146,7 @@
 			this.p5.mouseWheel = (event) => {
 				let zoomSensitivity = 0.01;
 				this.targetZoom -= event.delta * zoomSensitivity;
-				this.targetZoom = this.p5.constrain(this.targetZoom, 0.5, 4);
+				this.targetZoom = this.p5.constrain(this.targetZoom, 0.2, 1.5);
 				this.updateZoom();
 			};
 		}
@@ -236,8 +236,7 @@
 			}
 		}
 	}
-
-	const sketch = (p5) => {
+	let sketch = (p5) => {
 		p5.preload = () => {
 			for (let category of data) {
 				for (let asset of category.assets) {
@@ -248,24 +247,24 @@
 			}
 		};
 		p5.setup = () => {
-			const width = window.innerWidth;
-			const height = window.innerHeight;
-			p5.createCanvas(width, height);
-			terrain = new Terrain(GRID_WIDTH, GRID_HEIGHT);
-			renderer = new TerrainRenderer(width, height, terrain, p5);
-			renderer.render();
+				const WIDTH = window.innerWidth;
+				const HEIGHT = window.innerHeight;
+				p5.createCanvas(WIDTH, HEIGHT);
+				terrain = new Terrain(GRID_WIDTH, GRID_HEIGHT);
+				renderer = new TerrainRenderer(WIDTH, HEIGHT, terrain, p5);
+				renderer.render();
+			};
+			p5.draw = () => {
+				// renderer.render(); // Continuously call render
+			};
+			p5.mouseClicked = (event) => {
+				renderer.onClick(event);
+			};
 		};
-		p5.draw = () => {
-			renderer.render(); // Continuously call render
-		};
-		p5.mouseClicked = (event) => {
-			renderer.onClick(event);
-		};
-	};
 </script>
 
 <span on:contextmenu|preventDefault>
-	<P5 {sketch} />
+	<P5 {sketch}/>
 </span>
 
 <style></style>
