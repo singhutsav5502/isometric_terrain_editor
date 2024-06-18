@@ -156,16 +156,7 @@
 			MAP_GLOBAL.delete(key);
 			this.render();
 		}
-		render() {
-			this.p5.clear();
-			this.p5.background(BACKGROUND_COLOR);
 
-			for (let [key, tile] of MAP_GLOBAL) {
-				// key grid node number
-				// tile class instance
-				this.drawTile(tile);
-			}
-		}
 		getGridCoords(x_screen, y_screen) {
 			// Undo zoom and pan
 			let adjustedX = x_screen / this.zoom - this.panX;
@@ -203,6 +194,15 @@
 			);
 
 			this.render();
+		}
+		
+		render() {
+			this.p5.clear();
+			this.p5.background(BACKGROUND_COLOR);
+
+			for (let [key, tile] of MAP_GLOBAL) {
+				this.drawTile(tile);
+			}
 		}
 	}
 
