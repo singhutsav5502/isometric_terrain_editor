@@ -115,13 +115,13 @@
 					// delete tile
 					e.preventDefault();
 					const { grid_x, grid_y } = this.getGridCoords(e.clientX, e.clientY);
-					let tile = MAP_GLOBAL.get(`${grid_x}${grid_y}`);
-					let HeightTile = MAP_HEIGHT_TILES.get(`${grid_x}${grid_y}`);
+					let tile = MAP_GLOBAL.get(`${grid_x} ${grid_y}`);
+					let HeightTile = MAP_HEIGHT_TILES.get(`${grid_x} ${grid_y}`);
 					if (HeightTile) {
-						this.deleteHeightTile(`${grid_x}${grid_y}`);
+						this.deleteHeightTile(`${grid_x} ${grid_y}`);
 						return;
 					}
-					if (tile) this.deleteTile(`${grid_x}${grid_y}`);
+					if (tile) this.deleteTile(`${grid_x} ${grid_y}`);
 				}
 			};
 
