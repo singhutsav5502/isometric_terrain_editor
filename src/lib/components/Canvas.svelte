@@ -5,6 +5,7 @@
 	export let GRID_HEIGHT = 10;
 	export let selected_asset = {};
 	const MAP_GLOBAL = new Map();
+	const MAP_HEIGHT_TILES = new Map();
 	const ASSET_INFO = new Map();
 	const TILE_WIDTH = 130;
 	const TILE_HEIGHT = 75;
@@ -52,17 +53,33 @@
 			const tile = MAP_GLOBAL.get(`${x}${y}`);
 			return tile ? tile : null;
 		}
-
+		getHeightTile(x, y) {
+			const tile = MAP_HEIGHT_TILES.get(`${x}${y}`);
+			return tile ? tile : null;
+		}
 		updateTile(x, y, newTerrainType, height = 0) {
-			let tile = this.getTile(x, y);
-			if (!tile) {
-				tile = new Tile(newTerrainType, x, y, height);
-				MAP_GLOBAL.set(`${x}${y}`, tile);
-				return tile;
+			if (height == 0) {
+				let tile = this.getTile(x, y);
+				if (!tile) {
+					tile = new Tile(newTerrainType, x, y, height);
+					MAP_GLOBAL.set(`${x}${y}`, tile);
+					return tile;
+				} else {
+					MAP_GLOBAL.get(`${x}${y}`).tileType = newTerrainType;
+					MAP_GLOBAL.get(`${x}${y}`).tile_height = height;
+					return tile;
+				}
 			} else {
-				MAP_GLOBAL.get(`${x}${y}`).tileType = newTerrainType;
-				MAP_GLOBAL.get(`${x}${y}`).tile_height = height;
-				return tile;
+				let tile = this.getHeightTile(x, y);
+				if (!tile) {
+					tile = new Tile(newTerrainType, x, y, height);
+					MAP_HEIGHT_TILES.set(`${x}${y}`, tile);
+					return tile;
+				} else {
+					MAP_HEIGHT_TILES.get(`${x}${y}`).tileType = newTerrainType;
+					MAP_HEIGHT_TILES.get(`${x}${y}`).tile_height = height;
+					return tile;
+				}
 			}
 		}
 	}
@@ -94,9 +111,16 @@
 					this.prevMouseX = this.p5.mouseX;
 					this.prevMouseY = this.p5.mouseY;
 				} else if (e.button == 2) {
+					// right click
+					// delete tile
 					e.preventDefault();
 					const { grid_x, grid_y } = this.getGridCoords(e.clientX, e.clientY);
 					let tile = MAP_GLOBAL.get(`${grid_x}${grid_y}`);
+					let HeightTile = MAP_HEIGHT_TILES.get(`${grid_x}${grid_y}`);
+					if (HeightTile) {
+						this.deleteHeightTile(`${grid_x}${grid_y}`);
+						return;
+					}
 					if (tile) this.deleteTile(`${grid_x}${grid_y}`);
 				}
 			};
@@ -156,6 +180,10 @@
 			MAP_GLOBAL.delete(key);
 			this.render();
 		}
+		deleteHeightTile(key) {
+			MAP_HEIGHT_TILES.delete(key);
+			this.render();
+		}
 
 		getGridCoords(x_screen, y_screen) {
 			// Undo zoom and pan
@@ -195,12 +223,15 @@
 
 			this.render();
 		}
-		
+
 		render() {
 			this.p5.clear();
 			this.p5.background(BACKGROUND_COLOR);
 
 			for (let [key, tile] of MAP_GLOBAL) {
+				this.drawTile(tile);
+			}
+			for (let [key, tile] of MAP_HEIGHT_TILES) {
 				this.drawTile(tile);
 			}
 		}
