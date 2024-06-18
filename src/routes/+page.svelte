@@ -1,8 +1,8 @@
-
-
 <script>
+	import asset_data from '$lib/Assets/assets_imports.js';
 	import Menu from '$lib/components/Menu.svelte';
 	import Canvas from '$lib/components/Canvas.svelte';
+	let selected_asset = asset_data[0].assets[0]; // 1st block as default selected tile;
 </script>
 
 <svelte:head>
@@ -10,8 +10,8 @@
 </svelte:head>
 
 <div class="page-content">
-	<Canvas />
-	<Menu />
+	<Menu bind:selected_asset />
+	<Canvas bind:selected_asset />
 </div>
 
 <style>

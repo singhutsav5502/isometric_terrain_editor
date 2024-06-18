@@ -4,6 +4,7 @@
 	let GRID_WIDTH = 10;
 	let GRID_HEIGHT = 10;
 	let focused_category = asset_data[0].type; // default type is Grass
+	export let selected_asset = {};
 
 	function keydownHandler(event) {
 		event.stopPropagation();
@@ -107,7 +108,7 @@
 			<div class="asset-container">
 				{#each asset_data as category}
 					{#each category.assets as asset}
-						<button style="aspect-ratio:1/1;">
+						<button on:click={()=>{selected_asset=Object.create(asset);}} style="aspect-ratio:1/1; background-color:{asset.name == selected_asset.name?`${category.accent}`:''}">
 							<img src={asset.src} alt={asset.name} />
 						</button>
 					{/each}
@@ -224,7 +225,7 @@
 	}
 	.asset-container button {
 		flex: 0 0 auto; /* Prevent buttons from shrinking */
-		width: 6vw;
+		width: 120px;
 		border: none;
 		background-color: #2a2a40;
 		transition: 0.1s all ease-in-out;
@@ -236,4 +237,5 @@
 		cursor: pointer;
 		background-color: #1e1e2f;
 	}
+
 </style>

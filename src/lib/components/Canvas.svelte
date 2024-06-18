@@ -1,17 +1,20 @@
 <script>
 	import P5 from 'p5-svelte';
-
+	import data from '../Assets/assets_imports';
+	export let GRID_WIDTH = 10;
+	export let GRID_HEIGHT = 10;
+	export let selected_asset = {};
 	const MAP_GLOBAL = new Map();
+	const ASSET_INFO = new Map();
 	const TILE_WIDTH = 130;
 	const TILE_HEIGHT = 75;
 	const MAX_TILE_HEIGHT = 100;
 	const BACKGROUND_COLOR = `#1E1E2F`;
-	export let GRID_WIDTH = 10;
-	export let GRID_HEIGHT = 10;
-
+	let terrain;
+	let renderer;
 	class Tile {
-		constructor(terrainType, x, y, height = 0) {
-			this.terrainType = terrainType;
+		constructor(tileType, x, y, height = 0) {
+			this.tileType = tileType;
 			this.width = TILE_WIDTH;
 			this.height = TILE_HEIGHT;
 			this.x = x;
@@ -42,7 +45,7 @@
 
 		determineTerrainType(x, y) {
 			// place holder
-			return (x + y) % 2 === 0 ? 'grass' : 'water';
+			return (x + y) % 2 === 0 ? 'grass1' : 'stone1';
 		}
 
 		getTile(x, y) {
@@ -50,14 +53,15 @@
 			return tile ? tile : null;
 		}
 
-		updateTile(x, y, newTerrainType) {
+		updateTile(x, y, newTerrainType, height = 0) {
 			let tile = this.getTile(x, y);
 			if (!tile) {
-				tile = new Tile(newTerrainType, x, y);
+				tile = new Tile(newTerrainType, x, y, height);
 				MAP_GLOBAL.set(`${x}${y}`, tile);
 				return tile;
 			} else {
-				MAP_GLOBAL.get(`${x}${y}`).terrainType = newTerrainType;
+				MAP_GLOBAL.get(`${x}${y}`).tileType = newTerrainType;
+				MAP_GLOBAL.get(`${x}${y}`).tile_height = height;
 				return tile;
 			}
 		}
@@ -141,8 +145,7 @@
 			let tileHeight = TILE_HEIGHT * this.zoom;
 
 			this.p5.image(
-				// tile_images[Math.floor(Math.random() * 2)],
-				tile_images[tile.terrainType === 'grass' ? 0 : 1],
+				ASSET_INFO.get(tile.tileType).img,
 				x_screen,
 				y_screen - z_offset,
 				tileWidth,
@@ -192,22 +195,26 @@
 		onClick(event) {
 			const { grid_x, grid_y } = this.getGridCoords(event.clientX, event.clientY);
 
-			const updated_tile = this.terrain.updateTile(grid_x, grid_y, 'grass');
+			const updated_tile = this.terrain.updateTile(
+				grid_x,
+				grid_y,
+				selected_asset.name,
+				selected_asset.height
+			);
 
 			this.render();
 		}
 	}
-	let terrain;
-	let renderer;
-	let tile_images = [];
+
 	const sketch = (p5) => {
 		p5.preload = () => {
-			let img = p5.loadImage('../src/lib/Assets/grass1.png');
-			img.resize(TILE_WIDTH, TILE_HEIGHT);
-			tile_images.push(img);
-			img = p5.loadImage('../src/lib/Assets/stone1.png');
-			img.resize(TILE_WIDTH, TILE_HEIGHT);
-			tile_images.push(img);
+			for (let category of data) {
+				for (let asset of category.assets) {
+					let img = p5.loadImage(asset.src);
+					img.resize(TILE_WIDTH, TILE_HEIGHT);
+					ASSET_INFO.set(asset.name, { img: img, height: asset.height });
+				}
+			}
 		};
 		p5.setup = () => {
 			const width = window.innerWidth;

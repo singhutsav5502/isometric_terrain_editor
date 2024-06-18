@@ -1,7 +1,7 @@
 const data = [
     {
         type: "Grass",
-        accent: "#00FF00",
+        accent: "rgba(121, 233, 99,0.5)",
         assets: [
             {
                 name: 'grass1',
@@ -57,7 +57,7 @@ const data = [
     },
     {
         type: "Dirt",
-        accent: "#B87333",
+        accent: "rgba(184, 115, 51,0.8)",
         assets: [
             {
                 name: 'dirt1',
@@ -83,7 +83,7 @@ const data = [
     },
     {
         type: "Stone",
-        accent: "#C3BFBF",
+        accent: "rgba(195, 191, 191,1)",
         assets: [
             {
                 name: 'stone1',
@@ -105,11 +105,11 @@ const data = [
                 src: '../src/lib/Assets/stone4.png',
                 height: 0,
             },
-            {
-                name: 'stone stairs',
-                src: '../src/lib/Assets/stair_stone1.png',
-                height: 50,
-            }
+            // {
+            //     name: 'stone stairs',
+            //     src: '../src/lib/Assets/stair_stone1.png',
+            //     height: 50,
+            // }
         ]
     }
 
