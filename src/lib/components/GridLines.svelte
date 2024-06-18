@@ -51,7 +51,7 @@
 			p5.mouseWheel = (event) => {
 				let zoomSensitivity = 0.01;
 				targetZoom -= event.delta * zoomSensitivity;
-				targetZoom = p5.constrain(targetZoom, 0.5, 4);
+				targetZoom = p5.constrain(targetZoom, 0.2, 1.5);
 				updateZoom();
 			};
 		};

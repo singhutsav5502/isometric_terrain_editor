@@ -105,11 +105,11 @@ const data = [
                 src: '../src/lib/Assets/stone4.png',
                 height: 0,
             },
-            // {
-            //     name: 'stone stairs',
-            //     src: '../src/lib/Assets/stair_stone1.png',
-            //     height: 50,
-            // }
+            {
+                name: 'stone stairs',
+                src: '../src/lib/Assets/stair_stone1.png',
+                height: -25,
+            }
         ]
     }
 
