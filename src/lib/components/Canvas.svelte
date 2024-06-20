@@ -25,28 +25,43 @@
 	}
 
 	class Terrain {
-		constructor(width, height) {
+		constructor(width, height, p5) {
+			MAP_GLOBAL.clear();
+			MAP_HEIGHT_TILES.clear();
+			MAP_GLOBAL.clear();
 			this.width = width;
 			this.height = height;
+			this.p5 = p5;
+			this.terrainTypes = Array.from(ASSET_INFO.keys());
 			this.tiles = this.generateTerrain();
 		}
 
 		generateTerrain() {
+			const clamp = (val, min = 0, max = this.terrainTypes.length-1 ) =>
+				Math.min(Math.max(val, min), max);
 			const tiles = [];
-			for (let x = 0; x < this.width; x++) {
-				for (let y = 0; y < this.height; y++) {
-					const terrainType = this.determineTerrainType(x, y);
+			let inc = 0.1;
+			let yOff = 0;
+			this.p5.noiseDetail(100, 0.55);
+			for (let y = 0; y < this.height; y++) {
+				// Perlin noise generation
+				let xOff = 0;
+				for (let x = 0; x < this.width; x++) {
+					let index = Math.floor(
+						// this.p5.noise(xOff, yOff) * (1 + this.p5.sin(x + y)) * this.terrainTypes.length
+						// this.p5.noise(xOff, yOff) * (this.p5.noise(x, y)+0.25) * this.terrainTypes.length
+						(this.p5.noise(xOff, yOff)+0.1) * this.terrainTypes.length
+					);
+					index = clamp(index);
+					xOff += inc;
+					const terrainType = this.terrainTypes[index];
 					const tile = new Tile(terrainType, x, y);
 					tiles.push(tile);
 					MAP_GLOBAL.set(`${x} ${y}`, tile);
 				}
+				yOff += inc;
 			}
 			return tiles;
-		}
-
-		determineTerrainType(x, y) {
-			// place holder
-			return (x + y) % 2 === 0 ? 'grass1' : 'stone1';
 		}
 
 		getTile(x, y) {
@@ -247,24 +262,24 @@
 			}
 		};
 		p5.setup = () => {
-				const WIDTH = window.innerWidth;
-				const HEIGHT = window.innerHeight;
-				p5.createCanvas(WIDTH, HEIGHT);
-				terrain = new Terrain(GRID_WIDTH, GRID_HEIGHT);
-				renderer = new TerrainRenderer(WIDTH, HEIGHT, terrain, p5);
-				renderer.render();
-			};
-			p5.draw = () => {
-				// renderer.render(); // Continuously call render
-			};
-			p5.mouseClicked = (event) => {
-				renderer.onClick(event);
-			};
+			const WIDTH = window.innerWidth;
+			const HEIGHT = window.innerHeight;
+			p5.createCanvas(WIDTH, HEIGHT);
+			terrain = new Terrain(GRID_WIDTH, GRID_HEIGHT, p5);
+			renderer = new TerrainRenderer(WIDTH, HEIGHT, terrain, p5);
+			renderer.render();
 		};
+		p5.draw = () => {
+			// renderer.render(); // Continuously call render
+		};
+		p5.mouseClicked = (event) => {
+			renderer.onClick(event);
+		};
+	};
 </script>
 
 <span on:contextmenu|preventDefault>
-	<P5 {sketch}/>
+	<P5 {sketch} />
 </span>
 
 <style></style>
