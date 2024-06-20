@@ -68,6 +68,10 @@
 				assetContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
 				focused_category = asset_data[index].type;
 				settingsVisible = false;
+				const assets = document.querySelector('.scroll-buttons');
+				const misc = document.querySelector('.misc-container');
+				if(assets.classList.contains('invisible')) assets.classList.toggle('invisible');
+				if(!misc.classList.contains('invisible')) misc.classList.toggle('invisible');
 			});
 		});
 
@@ -111,6 +115,11 @@
 				on:click={() => {
 					focused_category = 'Misc';
 					settingsVisible = true;
+					const assets = document.querySelector('.scroll-buttons');
+					const misc = document.querySelector('.misc-container');
+					console.log(assets, misc);
+					assets.classList.toggle('invisible');
+					misc.classList.toggle('invisible');
 				}}
 			>
 				<span
@@ -120,61 +129,61 @@
 				>
 			</button>
 		</div>
-		{#if !settingsVisible}
-			<div class="scroll-buttons">
-				<button id="scroll-left" class="scroll-button">‹</button>
-				<div class="asset-container">
-					{#each asset_data as category}
-						{#each category.assets as asset}
-							<button
-								on:click={() => {
-									selected_asset = Object.create(asset);
-								}}
-								style="aspect-ratio:1/1; background-color:{asset.name == selected_asset.name
-									? `${category.accent}`
-									: ''}"
-							>
-								<img src={asset.src} alt={asset.name} />
-							</button>
-						{/each}
+		<!-- {#if !settingsVisible} -->
+		<div class="scroll-buttons">
+			<button id="scroll-left" class="scroll-button">‹</button>
+			<div class="asset-container">
+				{#each asset_data as category}
+					{#each category.assets as asset}
+						<button
+							on:click={() => {
+								selected_asset = Object.create(asset);
+							}}
+							style="aspect-ratio:1/1; background-color:{asset.name == selected_asset.name
+								? `${category.accent}`
+								: ''}"
+						>
+							<img src={asset.src} alt={asset.name} />
+						</button>
 					{/each}
-				</div>
-				<button id="scroll-right" class="scroll-button">›</button>
+				{/each}
 			</div>
-		{:else}
-			<div class="misc-container">
-				<div class="misc-section">
-					<span>
-						<input type="text" bind:value={GRID_WIDTH}>
-						<input
-							type="range"
-							min="10"
-							max="100"
-							bind:value={GRID_WIDTH}
-							id="GRID_WIDTH"
-							name="GRID_WIDTH"
-						/>
-						<label for="GRID_WIDTH">Generated Terrain Width</label>
-					</span>
-					<span>
-						<input type="text" bind:value={GRID_HEIGHT}>
-						<input
-							type="range"
-							min="10"
-							max="100"
-							bind:value={GRID_HEIGHT}
-							id="GRID_HEIGHT"
-							name="GRID_HEIGHT"
-						/>
-						<label for="GRID_HEIGHT">Generated Terrain Height</label>
-					</span>
-					<span>
-						<input type="checkbox" bind:checked={GRID_VISIBLE} id="GRID_VISIBLE"/>
-						<label for="GRID_VISIBLE">Grid Visible?</label>
-					</span>
-				</div>
+			<button id="scroll-right" class="scroll-button">›</button>
+		</div>
+		<!-- {:else} -->
+		<div class="misc-container invisible">
+			<div class="misc-section">
+				<span>
+					<input type="text" bind:value={GRID_WIDTH} />
+					<input
+						type="range"
+						min="10"
+						max="100"
+						bind:value={GRID_WIDTH}
+						id="GRID_WIDTH"
+						name="GRID_WIDTH"
+					/>
+					<label for="GRID_WIDTH">Generated Terrain Width</label>
+				</span>
+				<span>
+					<input type="text" bind:value={GRID_HEIGHT} />
+					<input
+						type="range"
+						min="10"
+						max="100"
+						bind:value={GRID_HEIGHT}
+						id="GRID_HEIGHT"
+						name="GRID_HEIGHT"
+					/>
+					<label for="GRID_HEIGHT">Generated Terrain Height</label>
+				</span>
+				<span>
+					<input type="checkbox" bind:checked={GRID_VISIBLE} id="GRID_VISIBLE" />
+					<label for="GRID_VISIBLE">Grid Visible?</label>
+				</span>
 			</div>
-		{/if}
+		</div>
+		<!-- {/if} -->
 	</div>
 </div>
 
@@ -302,7 +311,10 @@
 		display: flex;
 		gap: 0;
 	}
-	.misc-section:nth-of-type(1){
+	.misc-section {
+		border-right: 5px solid #1e1e2f;
+	}
+	.misc-section:nth-of-type(1) {
 		width: 30%;
 		padding: clamp(40px, 5vh, 50px);
 		display: flex;
@@ -310,13 +322,13 @@
 		align-items: flex-start;
 		gap: 15px;
 	}
-	.misc-section span{
+	.misc-section span {
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
-		gap:10px;
+		gap: 10px;
 	}
-	label{
+	label {
 		text-align: right;
 	}
 	input[type='range'] {
@@ -325,15 +337,18 @@
 	input[type='checkbox'] {
 		width: auto;
 	}
-	input[type='checkbox']+label{
+	input[type='checkbox'] + label {
 		width: auto;
 	}
-	input[type='text']{
+	input[type='text'] {
 		display: inline-block;
 		width: 20%;
-		padding:10px 5px 10px 5px;
+		padding: 10px 5px 10px 5px;
 		text-align: center;
-		background-color: rgba(42, 42, 64,0);
+		background-color: rgba(42, 42, 64, 0);
 		border: 1px solid grey;
+	}
+	.invisible {
+		display: none;
 	}
 </style>
