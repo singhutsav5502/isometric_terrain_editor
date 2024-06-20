@@ -56,6 +56,27 @@ const data = [
         ]
     },
     {
+        type: "Water",
+        accent: "rgba(120,215,255,1.00)",
+        assets: [
+            {
+                name: 'water1',
+                src: '../src/lib/Assets/water1.png',
+                height: 0,
+            },
+            {
+                name: 'water2',
+                src: '../src/lib/Assets/water2.png',
+                height: 0,
+            },
+            {
+                name: 'water3',
+                src: '../src/lib/Assets/water3.png',
+                height: 0,
+            }
+        ]
+    },
+    {
         type: "Dirt",
         accent: "rgba(184, 115, 51,0.8)",
         assets: [
@@ -105,13 +126,14 @@ const data = [
                 src: '../src/lib/Assets/stone4.png',
                 height: 0,
             },
-            {
-                name: 'stone stairs',
-                src: '../src/lib/Assets/stair_stone1.png',
-                height: -25,
-            }
+            // {
+            //     name: 'stone stairs',
+            //     src: '../src/lib/Assets/stair_stone1.png',
+            //     height: -25,
+            // }
         ]
-    }
+    },
+
 
 ]
 
