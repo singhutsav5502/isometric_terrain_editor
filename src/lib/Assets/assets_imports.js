@@ -57,7 +57,7 @@ const data = [
     },
     {
         type: "Water",
-        accent: "rgba(120,215,255,1.00)",
+        accent: "rgba(120,215,255,0.8)",
         assets: [
             {
                 name: 'water1',

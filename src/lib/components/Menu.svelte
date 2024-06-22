@@ -70,8 +70,8 @@
 				settingsVisible = false;
 				const assets = document.querySelector('.scroll-buttons');
 				const misc = document.querySelector('.misc-container');
-				if(assets.classList.contains('invisible')) assets.classList.toggle('invisible');
-				if(!misc.classList.contains('invisible')) misc.classList.toggle('invisible');
+				if (assets.classList.contains('invisible')) assets.classList.toggle('invisible');
+				if (!misc.classList.contains('invisible')) misc.classList.toggle('invisible');
 			});
 		});
 
@@ -91,107 +91,142 @@
 	});
 </script>
 
-<div
-	class="bottom-container"
-	on:click|stopPropagation
-	on:keydown={keydownHandler}
-	role="menu"
-	tabindex=""
->
-	<div class="bottom-inner-container">
-		<div class="category-container">
-			{#each asset_data as category}
-				<button class={focused_category === category.type ? 'focused' : ''}>
-					<span
-						style="display:flex; align-items:center; justify-content:flex-start;flex:1; width:auto;gap:0.2rem"
-					>
-						<span style="font-size:32px;width:auto;">&#x2022;</span>
-						{category.type}
-					</span>
-				</button>
-			{/each}
-			<button
-				class={focused_category === 'Misc' ? 'focused' : ''}
-				on:click={() => {
-					focused_category = 'Misc';
-					settingsVisible = true;
-					const assets = document.querySelector('.scroll-buttons');
-					const misc = document.querySelector('.misc-container');
-					console.log(assets, misc);
-					assets.classList.toggle('invisible');
-					misc.classList.toggle('invisible');
-				}}
-			>
-				<span
-					style="display:flex; align-items:center; justify-content:flex-start;flex:1; width:auto;gap:0.2rem;border-left:none;"
-				>
-					<span style="font-size:32px;width:auto;">&#x2022;</span>Misc</span
-				>
-			</button>
-		</div>
-		<!-- {#if !settingsVisible} -->
-		<div class="scroll-buttons">
-			<button id="scroll-left" class="scroll-button">‹</button>
-			<div class="asset-container">
+<div class="bottom-outer-container">
+	<button class="collapse-button" on:click={(e)=>{
+		e.stopPropagation();
+		const container  = document.querySelector('.bottom-container');
+		container.classList.toggle('invisible')
+		if(container.classList.contains('invisible')){
+			e.target.innerHTML='/\\'
+		}
+		else{
+			e.target.innerHTML='V'
+		}
+	}}>V</button>
+	<div
+		class="bottom-container"
+		on:click|stopPropagation
+		on:keydown={keydownHandler}
+		role="menu"
+		tabindex=""
+	>
+		<div class="bottom-inner-container">
+			<div class="category-container" style="display:flex;">
 				{#each asset_data as category}
-					{#each category.assets as asset}
-						<button
-							on:click={() => {
-								selected_asset = Object.create(asset);
-							}}
-							style="aspect-ratio:1/1; background-color:{asset.name == selected_asset.name
-								? `${category.accent}`
-								: ''}"
+					<button class={focused_category === category.type ? 'focused' : ''}>
+						<span
+							style="display:flex; align-items:center; justify-content:flex-start;flex:1; width:auto;gap:0.2rem"
 						>
-							<img src={asset.src} alt={asset.name} />
-						</button>
-					{/each}
+							<span style="font-size:32px;width:auto;">&#x2022;</span>
+							{category.type}
+						</span>
+					</button>
 				{/each}
+				<button
+					class={focused_category === 'Misc' ? 'focused' : ''}
+					on:click={() => {
+						focused_category = 'Misc';
+						settingsVisible = true;
+						const assets = document.querySelector('.scroll-buttons');
+						const misc = document.querySelector('.misc-container');
+						console.log(assets, misc);
+						assets.classList.toggle('invisible');
+						misc.classList.toggle('invisible');
+					}}
+				>
+					<span
+						style="display:flex; align-items:center; justify-content:flex-start;flex:1; width:auto;gap:0.2rem;border-left:none;"
+					>
+						<span style="font-size:32px;width:auto;">&#x2022;</span>Misc</span
+					>
+				</button>
 			</div>
-			<button id="scroll-right" class="scroll-button">›</button>
-		</div>
-		<!-- {:else} -->
-		<div class="misc-container invisible">
-			<div class="misc-section">
-				<span>
-					<input type="text" bind:value={GRID_WIDTH} />
-					<input
-						type="range"
-						min="10"
-						max="100"
-						bind:value={GRID_WIDTH}
-						id="GRID_WIDTH"
-						name="GRID_WIDTH"
-					/>
-					<label for="GRID_WIDTH">Generated Terrain Width</label>
-				</span>
-				<span>
-					<input type="text" bind:value={GRID_HEIGHT} />
-					<input
-						type="range"
-						min="10"
-						max="100"
-						bind:value={GRID_HEIGHT}
-						id="GRID_HEIGHT"
-						name="GRID_HEIGHT"
-					/>
-					<label for="GRID_HEIGHT">Generated Terrain Height</label>
-				</span>
-				<span>
-					<input type="checkbox" bind:checked={GRID_VISIBLE} id="GRID_VISIBLE" />
-					<label for="GRID_VISIBLE">Grid Visible?</label>
-				</span>
+			<!-- {#if !settingsVisible} -->
+			<div class="scroll-buttons">
+				<button id="scroll-left" class="scroll-button">‹</button>
+				<div class="asset-container">
+					{#each asset_data as category}
+						{#each category.assets as asset}
+							<button
+								on:click={() => {
+									selected_asset = Object.create(asset);
+								}}
+								style="aspect-ratio:1/1; background-color:{asset.name == selected_asset.name
+									? `${category.accent}`
+									: ''}"
+							>
+								<img src={asset.src} alt={asset.name} />
+							</button>
+						{/each}
+					{/each}
+				</div>
+				<button id="scroll-right" class="scroll-button">›</button>
 			</div>
+			<!-- {:else} -->
+			<div class="misc-container invisible">
+				<div class="misc-section" style="color:#fff;">
+					<span>
+						<input type="text" bind:value={GRID_WIDTH} />
+						<input
+							type="range"
+							min="10"
+							max="100"
+							bind:value={GRID_WIDTH}
+							id="GRID_WIDTH"
+							name="GRID_WIDTH"
+						/>
+						<label for="GRID_WIDTH">Generated Terrain Width</label>
+					</span>
+					<span>
+						<input type="text" bind:value={GRID_HEIGHT} />
+						<input
+							type="range"
+							min="10"
+							max="100"
+							bind:value={GRID_HEIGHT}
+							id="GRID_HEIGHT"
+							name="GRID_HEIGHT"
+						/>
+						<label for="GRID_HEIGHT">Generated Terrain Height</label>
+					</span>
+					<span>
+						<input type="checkbox" bind:checked={GRID_VISIBLE} id="GRID_VISIBLE" />
+						<label for="GRID_VISIBLE">Grid Visible?</label>
+					</span>
+				</div>
+			</div>
+			<!-- {/if} -->
 		</div>
-		<!-- {/if} -->
 	</div>
 </div>
 
 <style>
+	.bottom-outer-container {
+		width: 100vw;
+		position: absolute;
+		transform-origin: center bottom;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.collapse-button {
+		position: relative;
+		z-index: 100;
+		transform: translateX(-100%);
+		left: 100%;
+		padding: 16px;
+		width: auto;
+		border: none;
+		background-color: #1e1e2f;
+		cursor: pointer;
+	}
+	.collapse-button:hover {
+		background-color: #2a2a40;
+	}
 	.bottom-container {
 		width: 100%;
 		z-index: 100;
-		position: absolute;
+		position: relative;
 		transform-origin: center bottom;
 		left: 0;
 		right: 0;
@@ -345,6 +380,7 @@
 		width: 20%;
 		padding: 10px 5px 10px 5px;
 		text-align: center;
+		color: #fff;
 		background-color: rgba(42, 42, 64, 0);
 		border: 1px solid grey;
 	}
